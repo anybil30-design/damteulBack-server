@@ -270,7 +270,12 @@ exports.getUserDetail = (req, res) => {
       user_nickname,
       level_code,
       reported_count,
-      status,
+      CASE status
+        WHEN 0 THEN '활동중'
+        WHEN 1 THEN '정지'
+        WHEN 2 THEN '탈퇴'
+        ELSE '기타'
+      END AS status,
       created_at
     FROM damteul_users
     WHERE user_id = ?

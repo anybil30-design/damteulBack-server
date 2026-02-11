@@ -1,0 +1,48 @@
+# dependencies
+node_modules/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# runtime
+pids/
+*.pid
+*.pid.lock
+
+# uploads (runtime files)
+uploads/
+
+# test / coverage
+coverage/
+.nyc_output/
+
+# build artifacts (if any)
+dist/
+build/
+
+# database dumps/local db
+*.sql
+*.sqlite
+*.db
+
+# temp
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/

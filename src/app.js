@@ -112,6 +112,59 @@ app.post(
   }
 );
 
+// ✅ 응답에서 날짜 필드(created_at 등) 일괄 ISO 변환 미들웨어
+function isDateKey(key = "") {
+  const k = String(key).toLowerCase();
+  // created_at / updated_at / deleted_at / xxx_at / createdAt / updatedAt 등 커버
+  return k === "created_at" || k === "updated_at" || k === "deleted_at" || k.endsWith("_at") || k.endsWith("at") || k === "datetime";
+}
+
+function toIsoFromKstDatetimeString(s) {
+  // "YYYY-MM-DD HH:mm:ss" 또는 "YYYY-MM-DDTHH:mm:ss" 형태를 KST로 간주하고 ISO(Z)로 통일
+  // (네 DB가 KST 기준 DATETIME을 저장하고 있다는 전제)
+  const str = String(s);
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/.test(str)) return s;
+  const iso = new Date(str.replace(" ", "T") + "+09:00").toISOString();
+  return iso;
+}
+
+function normalizeDatesDeep(data) {
+  if (data == null) return data;
+
+  // mysql 드라이버가 DATETIME을 Date 객체로 주는 경우도 있음
+  if (data instanceof Date) return data.toISOString();
+
+  if (Array.isArray(data)) return data.map(normalizeDatesDeep);
+
+  if (typeof data === "object") {
+    const out = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value instanceof Date) {
+        out[key] = value.toISOString();
+        continue;
+      }
+
+      // 키가 created_at류면 문자열도 변환 시도
+      if (typeof value === "string" && isDateKey(key)) {
+        out[key] = toIsoFromKstDatetimeString(value);
+        continue;
+      }
+
+      out[key] = normalizeDatesDeep(value);
+    }
+    return out;
+  }
+
+  return data;
+}
+
+app.use((req, res, next) => {
+  const origJson = res.json.bind(res);
+  res.json = (payload) => origJson(normalizeDatesDeep(payload));
+  next();
+});
+
+
 // ✅ 6. 메인 API 라우터 연결
 app.use("/api", apiRoutes);
 

@@ -10,6 +10,7 @@ const connection = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: Number(process.env.DB_PORT || 3306),
+  timezone: "+09:00" ,
 });
 
 // ✅ pool 연결 테스트(서버 시작 시 한번 확인)

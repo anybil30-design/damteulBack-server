@@ -3,7 +3,7 @@ const path = require("path");
 const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
-
+process.env.TZ = "Asia/Seoul";
 // routes 및 미들웨어 불러오기
 const apiRoutes = require("./routes");
 const notFound = require("./middlewares/notFound.middleware");
